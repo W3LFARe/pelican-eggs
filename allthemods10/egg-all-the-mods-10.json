@@ -1,0 +1,86 @@
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED FOR PELICAN PANEL BY W3LFARE",
+    "meta": {
+        "version": "PTDL_v2",
+        "update_url": "https://raw.githubusercontent.com/W3LFARe/pelican-eggs/main/allthemods10/egg-all-the-mods-10.json"
+    },
+    "exported_at": "2026-10-26T00:00:00+00:00",
+    "name": "All the Mods 10 (W3LFARe Auto-Updating)",
+    "author": "github.com/W3LFARe",
+    "description": "All the Mods 10 (ATM10) Modded Minecraft Server powered by W3LFARe/docker-allthemods10. Supports automatic updates on reboot or manual reinstall updates directly from the W3LFARe 6-hour auto-updated GitHub repository.",
+    "features": [
+        "eula",
+        "java_version",
+        "pid_limit"
+    ],
+    "docker_images": {
+        "Java 21 (Pelican Yolk)": "ghcr.io/pelican-eggs/yolks:java_21"
+    },
+    "file_denylist": [],
+    "startup": "./pelican-start.sh",
+    "config": {
+        "files": "{\r\n    \"server.properties\": {\r\n        \"parser\": \"properties\",\r\n        \"find\": {\r\n            \"server-ip\": \"0.0.0.0\",\r\n            \"server-port\": \"{{server.build.default.port}}\",\r\n            \"query.port\": \"{{server.build.default.port}}\"\r\n        }\r\n    }\r\n}",
+        "startup": "{\r\n    \"done\": \")! For help, type \"\r\n}",
+        "logs": "{}",
+        "stop": "stop"
+    },
+    "scripts": {
+        "installation": {
+            "script": "#!/bin/bash\r\napt update\r\napt install -y curl wget unzip\r\n\r\nmkdir -p /mnt/server\r\ncd /mnt/server\r\n\r\necho \"Fetching latest launch.sh from W3LFARe/docker-allthemods10...\"\r\ncurl -sSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10/main/launch.sh -o launch.sh\r\nsed -i 's|/data|/home/container|g' launch.sh\r\nchmod +x launch.sh\r\n\r\ncat << 'EOF' > pelican-start.sh\r\n#!/bin/bash\r\ncd /home/container\r\nexport EULA=\"true\"\r\n\r\nif [ \"${AUTO_UPDATE}\" == \"1\" ] || [ \"${AUTO_UPDATE}\" == \"true\" ]; then\r\n    echo \"[W3LFARe-Egg] AUTO_UPDATE is enabled! Checking W3LFARe/docker-allthemods10 for latest ATM10 release...\"\r\n    curl -sSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10/main/launch.sh -o launch.sh.tmp\r\n    if [ -s launch.sh.tmp ]; then\r\n        mv launch.sh.tmp launch.sh\r\n        sed -i 's|/data|/home/container|g' launch.sh\r\n        chmod +x launch.sh\r\n    else\r\n        rm -f launch.sh.tmp\r\n        echo \"[W3LFARe-Egg] Warning: Could not reach GitHub, using existing launch.sh.\"\r\n    fi\r\nelse\r\n    echo \"[W3LFARe-Egg] AUTO_UPDATE is disabled. Booting installed ATM10 version...\"\r\nfi\r\n\r\nexec ./launch.sh\r\nEOF\r\n\r\nchmod +x pelican-start.sh\r\necho \"eula=true\" > eula.txt\r\necho \"Installation complete! Start the server to download and launch All the Mods 10.\"\r\n",
+            "container": "ghcr.io/pelican-eggs/installers:debian",
+            "entrypoint": "bash"
+        }
+    },
+    "variables": [
+        {
+            "name": "Auto Update on Reboot",
+            "description": "When enabled (1/true), the server fetches the latest launch.sh from W3LFARe/docker-allthemods10 on every restart and upgrades ATM10 automatically if a new version was detected by the 6-hour GitHub Action.",
+            "env_variable": "AUTO_UPDATE",
+            "default_value": "1",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|boolean",
+            "field_type": "text"
+        },
+        {
+            "name": "JVM Arguments",
+            "description": "Custom Java memory and garbage collection flags passed to JVM_OPTS in launch.sh.",
+            "env_variable": "JVM_OPTS",
+            "default_value": "-Xms4096m -Xmx8192m",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Server MOTD",
+            "description": "Message of the day displayed in the Minecraft server list.",
+            "env_variable": "MOTD",
+            "default_value": "All the Mods 10 Server Powered by W3LFARe",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string",
+            "field_type": "text"
+        },
+        {
+            "name": "World Name (LEVEL)",
+            "description": "Name of the world save folder.",
+            "env_variable": "LEVEL",
+            "default_value": "world",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Minecraft Operators (OPS)",
+            "description": "Comma-separated list of usernames to grant Operator permissions (e.g. OpPlayer1,OpPlayer2).",
+            "env_variable": "OPS",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string",
+            "field_type": "text"
+        }
+    ]
+}

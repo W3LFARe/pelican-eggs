@@ -1,0 +1,24 @@
+name: Validate Pelican Eggs
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-json:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Validate Egg JSON Syntax & Schema Keys
+        run: |
+          sudo apt-get update && sudo apt-get install -y jq
+          for file in $(find . -name "egg-*.json"); do
+            echo "Validating $file..."
+            jq -e '.meta.version == "PTDL_v2"' "$file" > /dev/null
+            jq -e '.name != null and .startup != null and .scripts.installation.script != null' "$file" > /dev/null
+            echo "✅ $file is valid!"
+          done
