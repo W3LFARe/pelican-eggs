@@ -49,11 +49,15 @@ All variables are configurable directly inside the server's **Startup** tab in P
 
 | Variable Name | Environment Variable | Default Value | Description |
 | :--- | :--- | :--- | :--- |
-| **Auto Update on Reboot** | `AUTO_UPDATE` | `1` (Enabled) | When enabled (`1`/`true`), pulls the latest `launch.sh` from GitHub on every restart and upgrades the modpack in place if a new release is out. Disable (`0`/`false`) to lock your current version. |
+| **Auto Update on Reboot** | `AUTO_UPDATE` | `1` (Enabled) | When enabled (`1`/`true`), pulls the latest `launch.sh` and `pack.env` from GitHub on every restart and upgrades the modpack in place if a new release is out. Disable (`0`/`false`) to lock your current version. |
 | **JVM Arguments** | `JVM_OPTS` | `-Xms4096m -Xmx8192m` | Custom Java memory flags passed to `user_jvm_args.txt`. Adjust `-Xmx` to stay ~1–2 GB below your container's hard memory limit to prevent OOM kills. |
 | **Server MOTD** | `MOTD` | `All the Mods 10 Server Powered by W3LFARe` | Message of the day displayed in the Minecraft multiplayer server list. |
-| **World Name** | `LEVEL` | `world` | Name of the world save directory (`level-name` in `server.properties`). |
-| **Minecraft Operators** | `OPS` | *(Blank)* | Comma-separated list of Minecraft usernames to automatically grant Operator (`op`) permissions on boot (e.g., `Player1,Player2`). |
+| **Allow Flight** | `ALLOW_FLIGHT` | `true` | Whether players are allowed to fly in Survival mode (`true` or `false`). |
+| **Max Players** | `MAX_PLAYERS` | `10` | Maximum number of players allowed on the server at once. |
+| **Online Mode** | `ONLINE_MODE` | `true` | Verify player accounts against Mojang authentication servers (`true` or `false`). |
+| **Enable Whitelist** | `ENABLE_WHITELIST` | `false` | Enable server whitelist (`true` or `false`). |
+| **Whitelist Users** | `WHITELIST_USERS` | *(Blank)* | Comma-separated list of Minecraft usernames to add to the whitelist on boot (e.g., `Player1,Player2`). |
+| **OP Users** | `OP_USERS` | *(Blank)* | Comma-separated list of Minecraft usernames to automatically grant Operator (`op`) permissions on boot (e.g., `Player1,Player2`). |
 
 ---
 

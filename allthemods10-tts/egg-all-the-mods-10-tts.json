@@ -4,7 +4,7 @@
         "version": "PTDL_v2",
         "update_url": "https://raw.githubusercontent.com/W3LFARe/pelican-eggs/main/allthemods10-tts/egg-all-the-mods-10-tts.json"
     },
-    "exported_at": "2026-10-26T00:00:00+00:00",
+    "exported_at": "2026-10-27T00:00:00+00:00",
     "name": "All the Mods 10: To The Sky (W3LFARe Auto-Updating)",
     "author": "admin@eraflew.com",
     "description": "All the Mods 10: To The Sky (ATM10-TTS) Modded Minecraft Server powered by W3LFARe/docker-allthemods10-tts. Supports automatic updates on reboot or manual reinstall updates directly from the W3LFARe 6-hour auto-updated GitHub repository.",
@@ -27,7 +27,7 @@
     },
     "scripts": {
         "installation": {
-            "script": "#!/bin/bash\napt update\napt install -y curl wget unzip\n\nmkdir -p /mnt/server\ncd /mnt/server\n\necho \"Fetching latest pack.env and launch.sh from W3LFARe/docker-allthemods10-tts...\"\ncurl -sSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10-tts/main/pack.env -o pack.env\ncurl -sSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10-tts/main/launch.sh -o launch.sh\nsed -i 's/\\r$//' pack.env launch.sh\nsed -i 's|/data|/home/container|g' launch.sh\nsed -i 's|/pack.env|/home/container/pack.env|g' launch.sh\nchmod +x launch.sh\n\ncat << 'EOF' > pelican-start.sh\n#!/bin/bash\ncd /home/container\nexport EULA=\"true\"\n\nif [ \"${AUTO_UPDATE}\" == \"1\" ] || [ \"${AUTO_UPDATE}\" == \"true\" ]; then\n    echo \"[W3LFARe-Egg] AUTO_UPDATE is enabled! Checking W3LFARe/docker-allthemods10-tts for latest ATM10-TTS release...\"\n    curl -sSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10-tts/main/pack.env -o pack.env.tmp\n    if [ -s pack.env.tmp ]; then\n        mv pack.env.tmp pack.env\n        sed -i 's/\\r$//' pack.env\n    else\n        rm -f pack.env.tmp\n    fi\n\n    curl -sSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10-tts/main/launch.sh -o launch.sh.tmp\n    if [ -s launch.sh.tmp ]; then\n        mv launch.sh.tmp launch.sh\n        sed -i 's/\\r$//' launch.sh\n        sed -i 's|/data|/home/container|g' launch.sh\n        sed -i 's|/pack.env|/home/container/pack.env|g' launch.sh\n        chmod +x launch.sh\n    else\n        rm -f launch.sh.tmp\n        echo \"[W3LFARe-Egg] Warning: Could not reach GitHub, using existing launch.sh.\"\n    fi\nelse\n    echo \"[W3LFARe-Egg] AUTO_UPDATE is disabled. Booting installed ATM10-TTS version...\"\nfi\n\nexec bash ./launch.sh\nEOF\n\nsed -i 's/\\r$//' pelican-start.sh\nchmod +x pelican-start.sh\necho \"eula=true\" > eula.txt\necho \"Installation complete! Start the server to download and launch All the Mods 10: To The Sky.\"\n",
+            "script": "#!/bin/bash\napt update\napt install -y curl wget unzip jq\n\nmkdir -p /mnt/server/.bin\ncd /mnt/server\n\n# Copy unzip and jq into /mnt/server/.bin so they are available inside yolks:java_21 at runtime\ncp -f /usr/bin/unzip /mnt/server/.bin/unzip 2>/dev/null || true\ncp -f /usr/bin/jq /mnt/server/.bin/jq 2>/dev/null || true\nchmod +x /mnt/server/.bin/* 2>/dev/null || true\n\necho \"Fetching latest pack.env and launch.sh from W3LFARe/docker-allthemods10-tts...\"\nif curl -fsSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10-tts/main/pack.env -o pack.env.tmp; then\n    mv pack.env.tmp pack.env\n    sed -i 's/\\r$//' pack.env\nelse\n    rm -f pack.env.tmp\nfi\n\ncurl -fsSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10-tts/main/launch.sh -o launch.sh\nsed -i 's/\\r$//' launch.sh\nsed -i 's|/data|/home/container|g' launch.sh\nsed -i 's|/pack.env|/home/container/pack.env|g' launch.sh\nchmod +x launch.sh\n\ncat << 'EOF' > pelican-start.sh\n#!/bin/bash\ncd /home/container\nexport PATH=\"/home/container/.bin:$PATH\"\nexport EULA=\"true\"\n\nif [ \"${AUTO_UPDATE}\" == \"1\" ] || [ \"${AUTO_UPDATE}\" == \"true\" ]; then\n    echo \"[W3LFARe-Egg] AUTO_UPDATE is enabled! Checking W3LFARe/docker-allthemods10-tts for latest ATM10-TTS release...\"\n    if curl -fsSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10-tts/main/pack.env -o pack.env.tmp && [ -s pack.env.tmp ]; then\n        mv pack.env.tmp pack.env\n        sed -i 's/\\r$//' pack.env\n    else\n        rm -f pack.env.tmp\n    fi\n\n    if curl -fsSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10-tts/main/launch.sh -o launch.sh.tmp && [ -s launch.sh.tmp ]; then\n        mv launch.sh.tmp launch.sh\n        sed -i 's/\\r$//' launch.sh\n        sed -i 's|/data|/home/container|g' launch.sh\n        sed -i 's|/pack.env|/home/container/pack.env|g' launch.sh\n        chmod +x launch.sh\n    else\n        rm -f launch.sh.tmp\n        echo \"[W3LFARe-Egg] Warning: Could not reach GitHub, using existing launch.sh.\"\n    fi\nelse\n    echo \"[W3LFARe-Egg] AUTO_UPDATE is disabled. Booting installed ATM10-TTS version...\"\nfi\n\nexec bash ./launch.sh\nEOF\n\nsed -i 's/\\r$//' pelican-start.sh\nchmod +x pelican-start.sh\necho \"eula=true\" > eula.txt\necho \"Installation complete! Start the server to download and launch All the Mods 10: To The Sky.\"\n",
             "container": "ghcr.io/pelican-eggs/installers:debian",
             "entrypoint": "bash"
         }
@@ -35,7 +35,7 @@
     "variables": [
         {
             "name": "Auto Update on Reboot",
-            "description": "When enabled (1/true), the server fetches the latest launch.sh from W3LFARe/docker-allthemods10-tts on every restart and upgrades ATM10-TTS automatically if a new version was detected by the 6-hour GitHub Action.",
+            "description": "When enabled (1/true), the server fetches the latest launch.sh and pack.env from W3LFARe/docker-allthemods10-tts on every restart and upgrades ATM10-TTS automatically if a new version was detected by the 6-hour GitHub Action.",
             "env_variable": "AUTO_UPDATE",
             "default_value": "1",
             "user_viewable": true,
@@ -57,26 +57,66 @@
             "name": "Server MOTD",
             "description": "Message of the day displayed in the Minecraft server list.",
             "env_variable": "MOTD",
-            "default_value": "All the Mods 10: To The Sky Server Powered by W3LFARe",
+            "default_value": "ATM10 To the Sky Server Powered by W3LFARe",
             "user_viewable": true,
             "user_editable": true,
             "rules": "required|string",
             "field_type": "text"
         },
         {
-            "name": "World Name (LEVEL)",
-            "description": "Name of the world save folder.",
-            "env_variable": "LEVEL",
-            "default_value": "world",
+            "name": "Allow Flight",
+            "description": "Whether players are allowed to fly in Survival mode (true or false).",
+            "env_variable": "ALLOW_FLIGHT",
+            "default_value": "true",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "required|string",
+            "rules": "required|string|in:true,false",
             "field_type": "text"
         },
         {
-            "name": "Minecraft Operators (OPS)",
-            "description": "Comma-separated list of usernames to grant Operator permissions (e.g. OpPlayer1,OpPlayer2).",
-            "env_variable": "OPS",
+            "name": "Max Players",
+            "description": "Maximum number of players allowed on the server at once.",
+            "env_variable": "MAX_PLAYERS",
+            "default_value": "10",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|numeric",
+            "field_type": "text"
+        },
+        {
+            "name": "Online Mode",
+            "description": "Verify player accounts against Mojang authentication servers (true or false).",
+            "env_variable": "ONLINE_MODE",
+            "default_value": "true",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:true,false",
+            "field_type": "text"
+        },
+        {
+            "name": "Enable Whitelist",
+            "description": "Enable server whitelist (true or false).",
+            "env_variable": "ENABLE_WHITELIST",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:true,false",
+            "field_type": "text"
+        },
+        {
+            "name": "Whitelist Users",
+            "description": "Comma-separated list of usernames to add to the whitelist (e.g. Player1,Player2).",
+            "env_variable": "WHITELIST_USERS",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string",
+            "field_type": "text"
+        },
+        {
+            "name": "OP Users",
+            "description": "Comma-separated list of usernames to grant Operator permissions (e.g. Player1,Player2).",
+            "env_variable": "OP_USERS",
             "default_value": "",
             "user_viewable": true,
             "user_editable": true,
