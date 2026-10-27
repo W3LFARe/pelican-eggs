@@ -8,6 +8,7 @@
     "name": "All the Mods 10: To The Sky (W3LFARe Auto-Updating)",
     "author": "admin@eraflew.com",
     "description": "All the Mods 10: To The Sky (ATM10-TTS) Modded Minecraft Server powered by W3LFARe/docker-allthemods10-tts. Supports automatic updates on reboot or manual reinstall updates directly from the W3LFARe 6-hour auto-updated GitHub repository.",
+    "image": "https://raw.githubusercontent.com/W3LFARe/pelican-eggs/main/allthemods10-tts/icon.png",
     "features": [
         "eula",
         "java_version",

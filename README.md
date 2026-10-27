@@ -10,12 +10,12 @@ Unlike standard static Eggs that require you to manually look up CurseForge file
 
 ## 📦 Available Eggs
 
-*(Right-click the **Download Egg JSON** link and select **Save Link As...** to download the Egg file for import)*
+*(Right-click **Download Egg JSON** and select **Save Link As...** to download the Egg file for import)*
 
-| Modpack | Egg JSON Download | Upstream Auto-Updater Repo | Required Java Yolk | Recommended RAM |
-| :--- | :--- | :--- | :--- | :--- |
-| **All the Mods 10 (ATM10)** | [**Download Egg JSON**](https://raw.githubusercontent.com/W3LFARe/pelican-eggs/main/allthemods10/egg-all-the-mods-10.json) | [`W3LFARe/docker-allthemods10`](https://github.com/W3LFARe/docker-allthemods10) | `ghcr.io/pelican-eggs/yolks:java_21` | 8 GB – 12 GB+ |
-| **All the Mods 10: To The Sky (ATM10-TTS)** | [**Download Egg JSON**](https://raw.githubusercontent.com/W3LFARe/pelican-eggs/main/allthemods10-tts/egg-all-the-mods-10-tts.json) | [`W3LFARe/docker-allthemods10-tts`](https://github.com/W3LFARe/docker-allthemods10-tts) | `ghcr.io/pelican-eggs/yolks:java_21` | 6 GB – 10 GB+ |
+| Icon | Modpack | Egg JSON Download | Icon URL (For Pelican UI) | Upstream Auto-Updater Repo | Recommended RAM |
+| :---: | :--- | :--- | :--- | :--- | :--- |
+| <img src="https://raw.githubusercontent.com/W3LFARe/pelican-eggs/main/allthemods10/icon.png" width="48" alt="ATM10"> | **All the Mods 10 (ATM10)** | [**Download Egg JSON**](https://raw.githubusercontent.com/W3LFARe/pelican-eggs/main/allthemods10/egg-all-the-mods-10.json) | [`icon.png`](https://raw.githubusercontent.com/W3LFARe/pelican-eggs/main/allthemods10/icon.png) | [`W3LFARe/docker-allthemods10`](https://github.com/W3LFARe/docker-allthemods10) | 8 GB – 12 GB+ |
+| <img src="https://raw.githubusercontent.com/W3LFARe/pelican-eggs/main/allthemods10-tts/icon.png" width="48" alt="ATM10-TTS"> | **All the Mods 10: To The Sky** | [**Download Egg JSON**](https://raw.githubusercontent.com/W3LFARe/pelican-eggs/main/allthemods10-tts/egg-all-the-mods-10-tts.json) | [`icon.png`](https://raw.githubusercontent.com/W3LFARe/pelican-eggs/main/allthemods10-tts/icon.png) | [`W3LFARe/docker-allthemods10-tts`](https://github.com/W3LFARe/docker-allthemods10-tts) | 6 GB – 10 GB+ |
 
 ---
 
