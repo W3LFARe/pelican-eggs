@@ -6,7 +6,7 @@
     },
     "exported_at": "2026-10-26T00:00:00+00:00",
     "name": "All the Mods 10 (W3LFARe Auto-Updating)",
-    "author": "github.com/W3LFARe",
+    "author": "admin@eraflew.com",
     "description": "All the Mods 10 (ATM10) Modded Minecraft Server powered by W3LFARe/docker-allthemods10. Supports automatic updates on reboot or manual reinstall updates directly from the W3LFARe 6-hour auto-updated GitHub repository.",
     "features": [
         "eula",
