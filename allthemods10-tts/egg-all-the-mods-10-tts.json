@@ -4,10 +4,10 @@
         "version": "PTDL_v2",
         "update_url": "https://raw.githubusercontent.com/W3LFARe/pelican-eggs/main/allthemods10-tts/egg-all-the-mods-10-tts.json"
     },
-    "exported_at": "2026-10-27T00:00:00+00:00",
+    "exported_at": "2026-10-28T00:00:00+00:00",
     "name": "All the Mods 10: To The Sky (W3LFARe Auto-Updating)",
     "author": "admin@eraflew.com",
-    "description": "All the Mods 10: To The Sky (ATM10-TTS) Modded Minecraft Server powered by W3LFARe/docker-allthemods10-tts. Supports automatic updates on reboot or manual reinstall updates directly from the W3LFARe 6-hour auto-updated GitHub repository.",
+    "description": "All the Mods 10: To The Sky (ATM10-TTS) Modded Minecraft Server powered by W3LFARe/docker-allthemods10-tts. Supports automatic updates on reboot, persistent custom_mods and custom_config folders, and manual reinstall updates directly from the W3LFARe 6-hour auto-updated GitHub repository.",
     "image": "https://raw.githubusercontent.com/W3LFARe/pelican-eggs/main/allthemods10-tts/icon.png",
     "features": [
         "eula",
@@ -27,7 +27,7 @@
     },
     "scripts": {
         "installation": {
-            "script": "#!/bin/bash\napt update\napt install -y curl wget unzip jq\n\nmkdir -p /mnt/server/.bin\ncd /mnt/server\n\ncp -f /usr/bin/unzip /mnt/server/.bin/unzip 2>/dev/null || true\ncp -f /usr/bin/jq /mnt/server/.bin/jq 2>/dev/null || true\nchmod +x /mnt/server/.bin/* 2>/dev/null || true\n\necho \"Fetching latest pack.env and launch.sh from W3LFARe/docker-allthemods10-tts...\"\nif curl -fsSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10-tts/main/pack.env -o pack.env.tmp; then\n    mv pack.env.tmp pack.env\n    sed -i 's/\\r$//' pack.env\nelse\n    rm -f pack.env.tmp\nfi\n\ncurl -fsSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10-tts/main/launch.sh -o launch.sh\nsed -i 's/\\r$//' launch.sh\nsed -i 's|/data|/home/container|g' launch.sh\nsed -i 's|/pack.env|/home/container/pack.env|g' launch.sh\nchmod +x launch.sh\n\ncat << 'EOF' > pelican-start.sh\n#!/bin/bash\ncd /home/container\nexport PATH=\"/home/container/.bin:$PATH\"\nexport EULA=\"true\"\n\nif [ \"${AUTO_UPDATE}\" == \"1\" ] || [ \"${AUTO_UPDATE}\" == \"true\" ]; then\n    echo \"[W3LFARe-Egg] AUTO_UPDATE is enabled! Checking W3LFARe/docker-allthemods10-tts for latest ATM10-TTS release...\"\n    if curl -fsSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10-tts/main/pack.env -o pack.env.tmp && [ -s pack.env.tmp ]; then\n        mv pack.env.tmp pack.env\n        sed -i 's/\\r$//' pack.env\n    else\n        rm -f pack.env.tmp\n    fi\n\n    if curl -fsSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10-tts/main/launch.sh -o launch.sh.tmp && [ -s launch.sh.tmp ]; then\n        mv launch.sh.tmp launch.sh\n        sed -i 's/\\r$//' launch.sh\n        sed -i 's|/data|/home/container|g' launch.sh\n        sed -i 's|/pack.env|/home/container/pack.env|g' launch.sh\n        chmod +x launch.sh\n    else\n        rm -f launch.sh.tmp\n        echo \"[W3LFARe-Egg] Warning: Could not reach GitHub, using existing launch.sh.\"\n    fi\nelse\n    echo \"[W3LFARe-Egg] AUTO_UPDATE is disabled. Booting installed ATM10-TTS version...\"\nfi\n\nif [ -n \"${SERVER_PORT}\" ]; then\n    echo \"[W3LFARe-Egg] Enforcing Pelican Panel Port: ${SERVER_PORT}\"\n    sed -i \"s/25565/${SERVER_PORT}/g\" launch.sh\n\n    if [ -f server.properties ]; then\n        sed -i \"s/^server-port=.*/server-port=${SERVER_PORT}/\" server.properties\n        sed -i \"s/^query\\.port=.*/query.port=${SERVER_PORT}/\" server.properties\n    fi\n\n    if ! grep -q \"query.port=\" launch.sh; then\n        sed -i \"s|./startserver.sh|sed -i 's/^server-port=.*/server-port=${SERVER_PORT}/; s/^query\\\\\\\\.port=.*/query.port=${SERVER_PORT}/' server.properties 2>/dev/null; ./startserver.sh|g\" launch.sh\n    fi\nfi\n\nexec bash ./launch.sh\nEOF\n\nsed -i 's/\\r$//' pelican-start.sh\nchmod +x pelican-start.sh\necho \"eula=true\" > eula.txt\necho \"Installation complete! Start the server to download and launch All the Mods 10: To The Sky.\"\n",
+            "script": "#!/bin/bash\napt update\napt install -y curl wget unzip jq\n\nmkdir -p /mnt/server/.bin /mnt/server/custom_mods /mnt/server/custom_config\ncd /mnt/server\n\ncp -f /usr/bin/unzip /mnt/server/.bin/unzip 2>/dev/null || true\ncp -f /usr/bin/jq /mnt/server/.bin/jq 2>/dev/null || true\nchmod +x /mnt/server/.bin/* 2>/dev/null || true\n\necho \"Fetching latest pack.env and launch.sh from W3LFARe/docker-allthemods10-tts...\"\nif curl -fsSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10-tts/main/pack.env -o pack.env.tmp && [ -s pack.env.tmp ]; then\n    mv pack.env.tmp pack.env\n    sed -i 's/\\r$//' pack.env\nelse\n    rm -f pack.env.tmp\nfi\n\ncurl -fsSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10-tts/main/launch.sh -o launch.sh\nsed -i 's/\\r$//' launch.sh\nsed -i 's|/data|/home/container|g' launch.sh\nsed -i 's|/pack.env|/home/container/pack.env|g' launch.sh\nchmod +x launch.sh\n\ncat << 'EOF' > pelican-start.sh\n#!/bin/bash\ncd /home/container\nexport PATH=\"/home/container/.bin:$PATH\"\nexport EULA=\"true\"\n\n# Ensure persistent custom_mods and custom_config directories exist\nmkdir -p /home/container/custom_mods /home/container/custom_config\n\nif [ \"${AUTO_UPDATE}\" == \"1\" ] || [ \"${AUTO_UPDATE}\" == \"true\" ]; then\n    echo \"[W3LFARe-Egg] AUTO_UPDATE is enabled! Checking W3LFARe/docker-allthemods10-tts for latest ATM10-TTS release...\"\n    if curl -fsSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10-tts/main/pack.env -o pack.env.tmp && [ -s pack.env.tmp ]; then\n        mv pack.env.tmp pack.env\n        sed -i 's/\\r$//' pack.env\n    else\n        rm -f pack.env.tmp\n    fi\n\n    if curl -fsSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10-tts/main/launch.sh -o launch.sh.tmp && [ -s launch.sh.tmp ]; then\n        mv launch.sh.tmp launch.sh\n        sed -i 's/\\r$//' launch.sh\n        sed -i 's|/data|/home/container|g' launch.sh\n        sed -i 's|/pack.env|/home/container/pack.env|g' launch.sh\n        chmod +x launch.sh\n    else\n        rm -f launch.sh.tmp\n        echo \"[W3LFARe-Egg] Warning: Could not reach GitHub, using existing launch.sh.\"\n    fi\nelse\n    echo \"[W3LFARe-Egg] AUTO_UPDATE is disabled. Booting installed ATM10-TTS version...\"\nfi\n\nif [ -n \"${SERVER_PORT}\" ]; then\n    echo \"[W3LFARe-Egg] Enforcing Pelican Panel Port: ${SERVER_PORT}\"\n    sed -i \"s/25565/${SERVER_PORT}/g\" launch.sh\n\n    if [ -f server.properties ]; then\n        sed -i \"s/^server-port=.*/server-port=${SERVER_PORT}/\" server.properties\n        sed -i \"s/^query\\.port=.*/query.port=${SERVER_PORT}/\" server.properties\n    fi\nfi\n\n# Fallback hook if upstream launch.sh does not yet contain custom_mods / custom_config / SERVER_PORT\nif ! grep -q \"custom_mods\" launch.sh; then\n    sed -i \"s|./startserver.sh|if compgen -G \\\"/home/container/custom_mods/*.jar\\\" > /dev/null; then echo \\\"[W3LFARe-Egg] Copying persistent mods from /custom_mods to /mods...\\\"; mkdir -p /home/container/mods; cp -vf /home/container/custom_mods/*.jar /home/container/mods/; fi; if [ -n \\\"\\\\$(ls -A /home/container/custom_config 2>/dev/null)\\\" ]; then echo \\\"[W3LFARe-Egg] Copying persistent configs from /custom_config to /config...\\\"; mkdir -p /home/container/config; cp -rvf /home/container/custom_config/* /home/container/config/; fi; if [ -n \\\"\\\\${SERVER_PORT}\\\" ] \\\\&\\\\& [ -f server.properties ]; then sed -i \\\"s/^server-port=.*/server-port=\\\\${SERVER_PORT}/; s/^query\\\\\\\\.port=.*/query.port=\\\\${SERVER_PORT}/\\\" server.properties; fi; ./startserver.sh|g\" launch.sh\nfi\n\nexec bash ./launch.sh\nEOF\n\nsed -i 's/\\r$//' pelican-start.sh\nchmod +x pelican-start.sh\necho \"eula=true\" > eula.txt\necho \"Installation complete! Start the server to download and launch All the Mods 10: To The Sky.\"\n",
             "container": "ghcr.io/pelican-eggs/installers:debian",
             "entrypoint": "bash"
         }
@@ -45,7 +45,7 @@
         },
         {
             "name": "JVM Arguments",
-            "description": "Custom Java memory and garbage collection flags passed to JVM_OPTS in launch.sh.",
+            "description": "JAVA Options. Performance Tip: Allocate at least 8-10 GB of RAM for 1-2 players, 10-12 GB for 2-5 players, or 14-16 GB for 5+ players.",
             "env_variable": "JVM_OPTS",
             "default_value": "-Xms4096m -Xmx8192m",
             "user_viewable": true,
@@ -60,7 +60,7 @@
             "default_value": "ATM10 To the Sky Server Powered by W3LFARe",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "required|string",
+            "rules": "nullable|string",
             "field_type": "text"
         },
         {
@@ -77,7 +77,7 @@
             "name": "Max Players",
             "description": "Maximum number of players allowed on the server at once.",
             "env_variable": "MAX_PLAYERS",
-            "default_value": "10",
+            "default_value": "5",
             "user_viewable": true,
             "user_editable": true,
             "rules": "required|numeric",
@@ -95,7 +95,7 @@
         },
         {
             "name": "Enable Whitelist",
-            "description": "Enable server whitelist (true or false).",
+            "description": "Enable (true)/Disable (false) Whitelist on the Server.",
             "env_variable": "ENABLE_WHITELIST",
             "default_value": "false",
             "user_viewable": true,
@@ -105,7 +105,7 @@
         },
         {
             "name": "Whitelist Users",
-            "description": "Comma-separated list of usernames to add to the whitelist (e.g. Player1,Player2).",
+            "description": "Add Users comma-separated to the Whitelist (e.g. TestUserName1, TestUserName2).",
             "env_variable": "WHITELIST_USERS",
             "default_value": "",
             "user_viewable": true,
@@ -115,7 +115,7 @@
         },
         {
             "name": "OP Users",
-            "description": "Comma-separated list of usernames to grant Operator permissions (e.g. Player1,Player2).",
+            "description": "Add Users comma-separated to grant Operator status (e.g. TestUserName1, TestUserName2).",
             "env_variable": "OP_USERS",
             "default_value": "",
             "user_viewable": true,

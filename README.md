@@ -22,9 +22,10 @@ Unlike standard static Eggs that require you to manually look up CurseForge file
 ## ✨ Key Features
 
 * **🔄 Smart `AUTO_UPDATE` Toggle:** Choose between hands-off automatic updates on every server restart (`AUTO_UPDATE=1`) or locking your server to its current version (`AUTO_UPDATE=0`) until you and your players are ready to update.
-* **⚡ Native Pelican Yolk Integration:** Runs on Pelican's official `yolks:java_21` image for accurate PID tracking, graceful stops, SFTP compatibility, and automatic `server.properties` port binding.
-* **⏱️ 6-Hour Upstream Sync:** Our upstream GitHub Actions check CurseForge every 6 hours for new releases and automatically update the `launch.sh` installer script.
-* **🛡️ GitHub Outage Protection:** Built-in fallback checks ensure that if GitHub is ever unreachable during a reboot, your server safely falls back to its existing local `launch.sh` script and boots normally.
+* **🧩 Persistent `custom_mods/` & `custom_config/` Folders:** Drop extra server-side `.jar` mods into `custom_mods/` and custom configuration files (such as `Discord-Integration.toml`) into `custom_config/` so they automatically survive modpack upgrades.
+* **⚡ Native Pelican Yolk Integration:** Runs on Pelican's official `yolks:java_21` image for accurate PID tracking, graceful stops, SFTP compatibility, native EULA prompt support, and automatic `SERVER_PORT` binding.
+* **⏱️ 6-Hour Upstream Sync:** Our upstream GitHub Actions check CurseForge every 6 hours for new releases and automatically update `pack.env` and `launch.sh`.
+* **🛡️ GitHub Outage Protection:** Built-in fallback checks ensure that if GitHub is ever unreachable during a reboot, your server safely falls back to its existing local `launch.sh` and `pack.env` files and boots normally.
 
 ---
 
@@ -50,21 +51,36 @@ All variables are configurable directly inside the server's **Startup** tab in P
 | Variable Name | Environment Variable | Default Value | Description |
 | :--- | :--- | :--- | :--- |
 | **Auto Update on Reboot** | `AUTO_UPDATE` | `1` (Enabled) | When enabled (`1`/`true`), pulls the latest `launch.sh` and `pack.env` from GitHub on every restart and upgrades the modpack in place if a new release is out. Disable (`0`/`false`) to lock your current version. |
-| **JVM Arguments** | `JVM_OPTS` | `-Xms4096m -Xmx8192m` | Custom Java memory flags passed to `user_jvm_args.txt`. Adjust `-Xmx` to stay ~1–2 GB below your container's hard memory limit to prevent OOM kills. |
+| **JVM Arguments** | `JVM_OPTS` | `-Xms8192m -Xmx12288m` (ATM10)<br>`-Xms4096m -Xmx8192m` (ATM10-TTS) | Custom Java memory flags passed to `user_jvm_args.txt`. Adjust `-Xmx` to stay ~1–2 GB below your container's hard memory limit to prevent OOM kills. |
 | **Server MOTD** | `MOTD` | `All the Mods 10 Server Powered by W3LFARe` | Message of the day displayed in the Minecraft multiplayer server list. |
 | **Allow Flight** | `ALLOW_FLIGHT` | `true` | Whether players are allowed to fly in Survival mode (`true` or `false`). |
-| **Max Players** | `MAX_PLAYERS` | `10` | Maximum number of players allowed on the server at once. |
+| **Max Players** | `MAX_PLAYERS` | `5` | Maximum number of players allowed on the server at once. |
 | **Online Mode** | `ONLINE_MODE` | `true` | Verify player accounts against Mojang authentication servers (`true` or `false`). |
-| **Enable Whitelist** | `ENABLE_WHITELIST` | `false` | Enable server whitelist (`true` or `false`). |
-| **Whitelist Users** | `WHITELIST_USERS` | *(Blank)* | Comma-separated list of Minecraft usernames to add to the whitelist on boot (e.g., `Player1,Player2`). |
-| **OP Users** | `OP_USERS` | *(Blank)* | Comma-separated list of Minecraft usernames to automatically grant Operator (`op`) permissions on boot (e.g., `Player1,Player2`). |
+| **Enable Whitelist** | `ENABLE_WHITELIST` | `false` | Enable (`true`) / Disable (`false`) Whitelist on the server. |
+| **Whitelist Users** | `WHITELIST_USERS` | *(Blank)* | Comma-separated list of Minecraft usernames to add to the whitelist on boot (e.g., `TestUserName1, TestUserName2`). |
+| **OP Users** | `OP_USERS` | *(Blank)* | Comma-separated list of Minecraft usernames to automatically grant Operator (`op`) permissions on boot (e.g., `TestUserName1, TestUserName2`). |
+
+---
+
+## 🧩 Persistent Custom Mods & Configs (`custom_mods` & `custom_config`)
+
+Because automatic modpack updates replace the `mods/` and `config/` folders with clean upstream files from the new CurseForge server pack, both Eggs automatically create two persistent folders in `/home/container/`:
+
+1. **`custom_mods/`** — Place any extra server-side `.jar` files here (for example, [`dcintegration-neoforge-*.jar`](https://www.curseforge.com/minecraft/mc-mods/dcintegration)). On every boot, all `.jar` files in `custom_mods/` are automatically copied into `mods/`.
+2. **`custom_config/`** — Place any custom configuration files or subdirectories here (for example, `Discord-Integration.toml`). On every boot, everything inside `custom_config/` is copied into `config/`, overwriting the default config.
+
+### Example: Persisting Discord Integration (`dcintegration`)
+1. Upload `dcintegration-neoforge-*.jar` into `/home/container/custom_mods/`.
+2. Start the server once so it generates `/home/container/config/Discord-Integration.toml`.
+3. Copy `Discord-Integration.toml` into `/home/container/custom_config/Discord-Integration.toml` and add your Discord Bot Token and Channel IDs there.
+4. Now whenever ATM10 or ATM10-TTS auto-updates to a new release, your Discord Integration mod and config are restored automatically before the server starts!
 
 ---
 
 ## 🔄 How Updating Works
 
 ### Mode 1: Automatic Updates on Restart (`AUTO_UPDATE = 1`)
-Leave **Auto Update on Reboot** enabled in the **Startup** tab. Whenever a new version of ATM10 or ATM10-TTS is detected by the upstream GitHub repo, simply **Restart** your server in the panel. The startup script will automatically pull the updated installer, replace the outdated `mods/` and `config/` folders while preserving your `world/` save and `server.properties`, and boot the upgraded server.
+Leave **Auto Update on Reboot** enabled in the **Startup** tab. Whenever a new version of ATM10 or ATM10-TTS is detected by the upstream GitHub repo, simply **Restart** your server in the panel. The startup script will automatically pull the updated installer, replace the outdated `mods/` and `config/` folders, restore your `custom_mods/` and `custom_config/`, preserve your `world/` save and `server.properties`, and boot the upgraded server.
 
 ### Mode 2: Version-Locked / Manual Updates (`AUTO_UPDATE = 0`)
 If you are playing with a group and don't want a scheduled nightly restart to upgrade the server before everyone updates their CurseForge client:
