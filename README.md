@@ -57,7 +57,7 @@ All variables are configurable directly inside the server's **Startup** tab in P
 | :--- | :--- | :--- | :--- |
 | **Auto Update on Reboot** | `AUTO_UPDATE` | `1` (Enabled) | `1`/`true`: on every start, switch to the newest **tested release** of the upstream repo and upgrade the modpack in place if a new version is out. `0`/`false`: stay on the installed version. |
 | **JVM Arguments** | `JVM_OPTS` | *(Blank = automatic)* | Leave blank to size the Java heap from the memory allocated to the server (`Xmx` = allocation minus the larger of 1 GB / 15%, `Xms` = half of that). Set it yourself to override; keep `-Xmx` 1–2 GB below your allocation. For reference, the Unraid defaults are `-Xms8192m -Xmx12288m` (ATM10) and `-Xms6144m -Xmx8192m` (ATM10-TTS). |
-| **Server MOTD** | `MOTD` | `All the Mods 10 Server Powered by W3LFARe` (ATM10)<br>`ATM10 To the Sky Server Powered by W3LFARe` (ATM10-TTS) | Message of the day displayed in the Minecraft multiplayer server list. |
+| **Server MOTD** | `MOTD` | `\u00a7l   \u00a72                         \u00a7oATM10 \u00a7r\n                    \u00a76Powered by \u00a74W3LFARe` (ATM10)<br>`\u00a7l \u00a72                \u00a7oATM10 \u00a7b\u00a7oTo the Sky \u00a73\u00a7oServer\u00a7r\n                    \u00a76Powered by \u00a74W3LFARe` (ATM10-TTS) | Message of the day displayed in the Minecraft multiplayer server list. |
 | **Allow Flight** | `ALLOW_FLIGHT` | `true` | Whether players are allowed to fly in Survival mode (`true` or `false`). |
 | **Max Players** | `MAX_PLAYERS` | `5` | Maximum number of players allowed on the server at once. |
 | **Online Mode** | `ONLINE_MODE` | `true` | Verify player accounts against Mojang authentication servers (`true` or `false`). |

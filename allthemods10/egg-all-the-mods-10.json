@@ -58,7 +58,7 @@
             "name": "Server MOTD",
             "description": "Message of the day displayed in the Minecraft server list.",
             "env_variable": "MOTD",
-            "default_value": "All the Mods 10 Server Powered by W3LFARe",
+            "default_value": "\\u00a7l   \\u00a72                         \\u00a7oATM10 \\u00a7r\\n                    \\u00a76Powered by \\u00a74W3LFARe",
             "user_viewable": true,
             "user_editable": true,
             "rules": "nullable|string|max:200",
@@ -106,7 +106,7 @@
         },
         {
             "name": "Whitelist Users",
-            "description": "Comma-separated usernames to add to the whitelist (e.g. TestUserName1, TestUserName2).",
+            "description": "Add Users comma-separated to the Whitelist (e.g. TestUserName1, TestUserName2). Note: Users listed here are re-added on every server start and cannot be permanently removed via in-game commands unless removed from this variable.",
             "env_variable": "WHITELIST_USERS",
             "default_value": "",
             "user_viewable": true,
@@ -116,7 +116,7 @@
         },
         {
             "name": "OP Users",
-            "description": "Comma-separated usernames to grant Operator status (e.g. TestUserName1, TestUserName2).",
+            "description": "Add Users comma-separated to grant Operator status (e.g. TestUserName1, TestUserName2). Note: Users listed here are re-added on every server start and cannot be permanently de-opped via in-game commands unless removed from this variable. (Operators automatically bypass the whitelist).",
             "env_variable": "OP_USERS",
             "default_value": "",
             "user_viewable": true,
