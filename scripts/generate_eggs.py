@@ -234,19 +234,8 @@ def variables(egg):
         var("Online Mode", "Verify player accounts against Mojang authentication servers (true or false).",
             "ONLINE_MODE", "true", "required|string|in:true,false"),
         var("Enable Whitelist",
-            "Enable (true) / disable (false) the whitelist. Same default as the Unraid template: with it enabled, add "
-            "players to Whitelist Users or nobody can join.",
+            "Enable (true) / disable (false) the server whitelist.",
             "ENABLE_WHITELIST", "true", "required|string|in:true,false"),
-        var("Whitelist Users",
-            "Add Users comma-separated to the Whitelist (e.g. TestUserName1, TestUserName2). Note: Users listed here "
-            "are re-added on every server start and cannot be permanently removed via in-game commands unless removed "
-            "from this variable.",
-            "WHITELIST_USERS", "", "nullable|string|max:500"),
-        var("OP Users",
-            "Add Users comma-separated to grant Operator status (e.g. TestUserName1, TestUserName2). Note: Users "
-            "listed here are re-added on every server start and cannot be permanently de-opped via in-game commands "
-            "unless removed from this variable. (Operators automatically bypass the whitelist).",
-            "OP_USERS", "", "nullable|string|max:500"),
         var("Upstream Version (advanced)",
             "Leave EMPTY to use the newest tested GitHub Release. Set a tag (e.g. v8.3) to pin a specific version, or "
             "'main' to follow the development branch (untested).",

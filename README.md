@@ -45,7 +45,7 @@ Unlike standard static Eggs that require you to manually look up CurseForge file
 3. Allocate sufficient memory (at least **8192 MB** recommended). Leave `JVM_OPTS` blank to size the Java heap automatically.
 4. Click **Create Server**. The installer will set up the environment.
 5. Start the server. When Pelican shows the **Minecraft EULA** prompt, read and accept it; the modpack and NeoForge then download and install automatically on the first boot.
-6. `ENABLE_WHITELIST` defaults to `true`: add your usernames to **Whitelist Users** (and **OP Users**) before joining, or set it to `false`.
+6. `ENABLE_WHITELIST` defaults to `true`: run `whitelist add <username>` (and `op <username>`) in the panel's **Console** tab before joining, or set `ENABLE_WHITELIST` to `false`.
 
 ---
 
@@ -61,9 +61,7 @@ All variables are configurable directly inside the server's **Startup** tab in P
 | **Allow Flight** | `ALLOW_FLIGHT` | `true` | Whether players are allowed to fly in Survival mode (`true` or `false`). |
 | **Max Players** | `MAX_PLAYERS` | `5` | Maximum number of players allowed on the server at once. |
 | **Online Mode** | `ONLINE_MODE` | `true` | Verify player accounts against Mojang authentication servers (`true` or `false`). |
-| **Enable Whitelist** | `ENABLE_WHITELIST` | `true` | Enable (`true`) / Disable (`false`) the whitelist. Same default as the Unraid template, so **add players to `WHITELIST_USERS`** (or set this to `false`) or nobody can join. |
-| **Whitelist Users** | `WHITELIST_USERS` | *(Blank)* | Comma-separated list of Minecraft usernames to add to the whitelist on boot (e.g., `TestUserName1, TestUserName2`). |
-| **OP Users** | `OP_USERS` | *(Blank)* | Comma-separated list of Minecraft usernames to automatically grant Operator (`op`) permissions on boot (e.g., `TestUserName1, TestUserName2`). |
+| **Enable Whitelist** | `ENABLE_WHITELIST` | `true` | Enable (`true`) / Disable (`false`) the server whitelist. |
 | **Upstream Version (advanced)** | `UPSTREAM_REF` | *(Blank)* | Blank = newest tested GitHub Release. Set a tag (e.g. `v8.3`) to pin a version, or `main` to follow the untested development branch. |
 
 ---

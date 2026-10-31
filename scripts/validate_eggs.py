@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 REQUIRED_KEYS = ["name", "author", "uuid", "description", "image", "features", "docker_images",
                  "startup", "config", "scripts", "variables"]
 REQUIRED_VARS = ["AUTO_UPDATE", "JVM_OPTS", "MOTD", "ALLOW_FLIGHT", "MAX_PLAYERS", "ONLINE_MODE",
-                 "ENABLE_WHITELIST", "WHITELIST_USERS", "OP_USERS"]
+                 "ENABLE_WHITELIST"]
 
 errors = []
 

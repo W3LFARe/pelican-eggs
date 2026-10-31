@@ -96,32 +96,12 @@
         },
         {
             "name": "Enable Whitelist",
-            "description": "Enable (true) / disable (false) the whitelist. Same default as the Unraid template: with it enabled, add players to Whitelist Users or nobody can join.",
+            "description": "Enable (true) / disable (false) the server whitelist.",
             "env_variable": "ENABLE_WHITELIST",
             "default_value": "true",
             "user_viewable": true,
             "user_editable": true,
             "rules": "required|string|in:true,false",
-            "field_type": "text"
-        },
-        {
-            "name": "Whitelist Users",
-            "description": "Add Users comma-separated to the Whitelist (e.g. TestUserName1, TestUserName2). Note: Users listed here are re-added on every server start and cannot be permanently removed via in-game commands unless removed from this variable.",
-            "env_variable": "WHITELIST_USERS",
-            "default_value": "",
-            "user_viewable": true,
-            "user_editable": true,
-            "rules": "nullable|string|max:500",
-            "field_type": "text"
-        },
-        {
-            "name": "OP Users",
-            "description": "Add Users comma-separated to grant Operator status (e.g. TestUserName1, TestUserName2). Note: Users listed here are re-added on every server start and cannot be permanently de-opped via in-game commands unless removed from this variable. (Operators automatically bypass the whitelist).",
-            "env_variable": "OP_USERS",
-            "default_value": "",
-            "user_viewable": true,
-            "user_editable": true,
-            "rules": "nullable|string|max:500",
             "field_type": "text"
         },
         {
