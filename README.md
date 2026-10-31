@@ -22,10 +22,13 @@ Unlike standard static Eggs that require you to manually look up CurseForge file
 ## ✨ Key Features
 
 * **🔄 Smart `AUTO_UPDATE` Toggle:** Choose between hands-off automatic updates on every server restart (`AUTO_UPDATE=1`) or locking your server to its current version (`AUTO_UPDATE=0`) until you and your players are ready to update.
+* **✅ Tested Releases Only:** Auto-update follows the newest upstream **GitHub Release**, which is only published after the upstream CI boot-tests the server — a broken commit on `main` never reaches your server. (Advanced: pin a version or follow `main` with the *Upstream Version* variable.)
 * **🧩 Persistent `custom_mods/` & `custom_config/` Folders:** Drop extra server-side `.jar` mods into `custom_mods/` and custom configuration files (such as `Discord-Integration.toml`) into `custom_config/` so they automatically survive modpack upgrades.
-* **⚡ Native Pelican Yolk Integration:** Runs on Pelican's official `yolks:java_21` image for accurate PID tracking, graceful stops, SFTP compatibility, native EULA prompt support, and automatic `SERVER_PORT` binding.
+* **📜 You Accept the EULA:** The Egg never accepts the Minecraft EULA for you — Pelican's built-in EULA prompt appears on first start and writes `eula.txt` when you agree.
+* **🧠 Automatic Heap Sizing:** Leave `JVM_OPTS` blank and the Java heap is sized from the memory allocated to the server, so it can't exceed the container limit.
+* **⚡ Native Pelican Yolk Integration:** Runs on Pelican's official `yolks:java_21` image for accurate PID tracking, graceful stops, SFTP compatibility, and automatic `SERVER_PORT` binding.
 * **⏱️ 6-Hour Upstream Sync:** Our upstream GitHub Actions check CurseForge every 6 hours for new releases and automatically update `pack.env` and `launch.sh`.
-* **🛡️ GitHub Outage Protection:** Built-in fallback checks ensure that if GitHub is ever unreachable during a reboot, your server safely falls back to its existing local `launch.sh` and `pack.env` files and boots normally.
+* **🛡️ GitHub Outage Protection:** Downloads are all-or-nothing (`pack.env` + `launch.sh` together, HTTP errors are never saved as files). If GitHub is unreachable during a reboot, your server keeps its existing files and boots normally.
 
 ---
 
@@ -39,8 +42,10 @@ Unlike standard static Eggs that require you to manually look up CurseForge file
 ### 2. Deploy the Server
 1. Go to **Servers** -> **Create Server**.
 2. Select either **All the Mods 10 (W3LFARe Auto-Updating)** or **All the Mods 10: To The Sky (W3LFARe Auto-Updating)**.
-3. Allocate sufficient memory (at least **8192 MB** recommended) and match your `JVM_OPTS` variable to your container's RAM allocation.
-4. Click **Create Server**. The installer will set up the environment, and the first boot will download and install the modpack and NeoForge automatically.
+3. Allocate sufficient memory (at least **8192 MB** recommended). Leave `JVM_OPTS` blank to size the Java heap automatically.
+4. Click **Create Server**. The installer will set up the environment.
+5. Start the server. When Pelican shows the **Minecraft EULA** prompt, read and accept it; the modpack and NeoForge then download and install automatically on the first boot.
+6. `ENABLE_WHITELIST` defaults to `true`: add your usernames to **Whitelist Users** (and **OP Users**) before joining, or set it to `false`.
 
 ---
 
@@ -50,15 +55,16 @@ All variables are configurable directly inside the server's **Startup** tab in P
 
 | Variable Name | Environment Variable | Default Value | Description |
 | :--- | :--- | :--- | :--- |
-| **Auto Update on Reboot** | `AUTO_UPDATE` | `1` (Enabled) | When enabled (`1`/`true`), pulls the latest `launch.sh` and `pack.env` from GitHub on every restart and upgrades the modpack in place if a new release is out. Disable (`0`/`false`) to lock your current version. |
-| **JVM Arguments** | `JVM_OPTS` | `-Xms8192m -Xmx12288m` (ATM10)<br>`-Xms4096m -Xmx8192m` (ATM10-TTS) | Custom Java memory flags passed to `user_jvm_args.txt`. Adjust `-Xmx` to stay ~1–2 GB below your container's hard memory limit to prevent OOM kills. |
-| **Server MOTD** | `MOTD` | `All the Mods 10 Server Powered by W3LFARe` | Message of the day displayed in the Minecraft multiplayer server list. |
+| **Auto Update on Reboot** | `AUTO_UPDATE` | `1` (Enabled) | `1`/`true`: on every start, switch to the newest **tested release** of the upstream repo and upgrade the modpack in place if a new version is out. `0`/`false`: stay on the installed version. |
+| **JVM Arguments** | `JVM_OPTS` | *(Blank = automatic)* | Leave blank to size the Java heap from the memory allocated to the server (`Xmx` = allocation minus the larger of 1 GB / 15%, `Xms` = half of that). Set it yourself to override; keep `-Xmx` 1–2 GB below your allocation. For reference, the Unraid defaults are `-Xms8192m -Xmx12288m` (ATM10) and `-Xms6144m -Xmx8192m` (ATM10-TTS). |
+| **Server MOTD** | `MOTD` | `All the Mods 10 Server Powered by W3LFARe` (ATM10)<br>`ATM10 To the Sky Server Powered by W3LFARe` (ATM10-TTS) | Message of the day displayed in the Minecraft multiplayer server list. |
 | **Allow Flight** | `ALLOW_FLIGHT` | `true` | Whether players are allowed to fly in Survival mode (`true` or `false`). |
 | **Max Players** | `MAX_PLAYERS` | `5` | Maximum number of players allowed on the server at once. |
 | **Online Mode** | `ONLINE_MODE` | `true` | Verify player accounts against Mojang authentication servers (`true` or `false`). |
-| **Enable Whitelist** | `ENABLE_WHITELIST` | `false` | Enable (`true`) / Disable (`false`) Whitelist on the server. |
+| **Enable Whitelist** | `ENABLE_WHITELIST` | `true` | Enable (`true`) / Disable (`false`) the whitelist. Same default as the Unraid template, so **add players to `WHITELIST_USERS`** (or set this to `false`) or nobody can join. |
 | **Whitelist Users** | `WHITELIST_USERS` | *(Blank)* | Comma-separated list of Minecraft usernames to add to the whitelist on boot (e.g., `TestUserName1, TestUserName2`). |
 | **OP Users** | `OP_USERS` | *(Blank)* | Comma-separated list of Minecraft usernames to automatically grant Operator (`op`) permissions on boot (e.g., `TestUserName1, TestUserName2`). |
+| **Upstream Version (advanced)** | `UPSTREAM_REF` | *(Blank)* | Blank = newest tested GitHub Release. Set a tag (e.g. `v8.3`) to pin a version, or `main` to follow the untested development branch. |
 
 ---
 
@@ -66,7 +72,7 @@ All variables are configurable directly inside the server's **Startup** tab in P
 
 Because automatic modpack updates replace the `mods/` and `config/` folders with clean upstream files from the new CurseForge server pack, both Eggs automatically create two persistent folders in `/home/container/`:
 
-1. **`custom_mods/`** — Place any extra server-side `.jar` files here (for example, [`dcintegration-neoforge-*.jar`](https://www.curseforge.com/minecraft/mc-mods/dcintegration)). On every boot, all `.jar` files in `custom_mods/` are automatically copied into `mods/`.
+1. **`custom_mods/`** — Place any extra server-side `.jar` files here (for example, [`dcintegration-neoforge-*.jar`](https://www.curseforge.com/minecraft/mc-mods/dcintegration)). On every boot, all `.jar` files in `custom_mods/` are copied into `mods/`. Jars you rename or delete in `custom_mods/` are also removed from `mods/` on the next boot (so updating a mod never leaves two versions behind).
 2. **`custom_config/`** — Place any custom configuration files or subdirectories here (for example, `Discord-Integration.toml`). On every boot, everything inside `custom_config/` is copied into `config/`, overwriting the default config.
 
 ### Example: Persisting Discord Integration (`dcintegration`)
@@ -80,7 +86,7 @@ Because automatic modpack updates replace the `mods/` and `config/` folders with
 ## 🔄 How Updating Works
 
 ### Mode 1: Automatic Updates on Restart (`AUTO_UPDATE = 1`)
-Leave **Auto Update on Reboot** enabled in the **Startup** tab. Whenever a new version of ATM10 or ATM10-TTS is detected by the upstream GitHub repo, simply **Restart** your server in the panel. The startup script will automatically pull the updated installer, replace the outdated `mods/` and `config/` folders, restore your `custom_mods/` and `custom_config/`, preserve your `world/` save and `server.properties`, and boot the upgraded server.
+Leave **Auto Update on Reboot** enabled in the **Startup** tab. Whenever a new version of ATM10 or ATM10-TTS is published as a **GitHub Release** by the upstream repo (after its CI boot test passed), simply **Restart** your server in the panel. The startup script switches to that release, replaces the outdated `mods/` and `config/` folders, restores your `custom_mods/` and `custom_config/`, preserves your `world/` save and `server.properties`, and boots the upgraded server.
 
 ### Mode 2: Version-Locked / Manual Updates (`AUTO_UPDATE = 0`)
 If you are playing with a group and don't want a scheduled nightly restart to upgrade the server before everyone updates their CurseForge client:
@@ -97,3 +103,16 @@ If you run **Unraid** or standalone **Docker Compose**, check out the upstream r
 * **Unraid Templates:** [`W3LFARe/unraid_templates`](https://github.com/W3LFARe/unraid_templates)
 * **ATM10 Docker Image:** [`w3lfare/allthemods10` on Docker Hub](https://hub.docker.com/r/w3lfare/allthemods10)
 * **ATM10: To The Sky Docker Image:** [`w3lfare/allthemods10-tts` on Docker Hub](https://hub.docker.com/r/w3lfare/allthemods10-tts)
+
+---
+
+## 🛠️ Development
+
+The Egg JSON files are **generated** — don't edit them by hand.
+
+```bash
+python3 scripts/generate_eggs.py      # regenerate both Eggs from the template
+python3 scripts/validate_eggs.py      # schema, CRLF, bash -n, generator-up-to-date checks
+```
+
+CI ([`validate-eggs.yml`](.github/workflows/validate-eggs.yml)) runs the validator on every push/PR, and weekly it also checks that the icon, `update_url` and upstream `launch.sh`/`pack.env` URLs still resolve.

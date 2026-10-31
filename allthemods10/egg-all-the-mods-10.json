@@ -1,13 +1,14 @@
 {
-    "_comment": "DO NOT EDIT: FILE GENERATED FOR PELICAN PANEL BY W3LFARE",
+    "_comment": "DO NOT EDIT: FILE GENERATED FOR PELICAN PANEL BY W3LFARE (scripts/generate_eggs.py)",
     "meta": {
         "version": "PTDL_v2",
         "update_url": "https://raw.githubusercontent.com/W3LFARe/pelican-eggs/main/allthemods10/egg-all-the-mods-10.json"
     },
-    "exported_at": "2026-10-28T00:00:00+00:00",
+    "exported_at": "2026-10-31T00:00:00+00:00",
     "name": "All the Mods 10 (W3LFARe Auto-Updating)",
-    "author": "admin@eraflew.com",
-    "description": "All the Mods 10 (ATM10) Modded Minecraft Server powered by W3LFARe/docker-allthemods10. Supports automatic updates on reboot, persistent custom_mods and custom_config folders, and manual reinstall updates directly from the W3LFARe 6-hour auto-updated GitHub repository.",
+    "author": "W3LFARe@users.noreply.github.com",
+    "uuid": "27547726-d979-593c-a588-0eedf00c140c",
+    "description": "All the Mods 10 (ATM10) Modded Minecraft Server powered by W3LFARe/docker-allthemods10. Supports automatic updates on reboot (tested releases only), persistent custom_mods and custom_config folders, and manual reinstall updates directly from the W3LFARe 6-hour auto-updated GitHub repository.",
     "image": "https://raw.githubusercontent.com/W3LFARe/pelican-eggs/main/allthemods10/icon.png",
     "features": [
         "eula",
@@ -27,7 +28,7 @@
     },
     "scripts": {
         "installation": {
-            "script": "#!/bin/bash\napt update\napt install -y curl wget unzip jq\n\nmkdir -p /mnt/server/.bin /mnt/server/custom_mods /mnt/server/custom_config\ncd /mnt/server\n\ncp -f /usr/bin/unzip /mnt/server/.bin/unzip 2>/dev/null || true\ncp -f /usr/bin/jq /mnt/server/.bin/jq 2>/dev/null || true\nchmod +x /mnt/server/.bin/* 2>/dev/null || true\n\necho \"Fetching latest pack.env and launch.sh from W3LFARe/docker-allthemods10...\"\nif curl -fsSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10/main/pack.env -o pack.env.tmp && [ -s pack.env.tmp ]; then\n    mv pack.env.tmp pack.env\n    sed -i 's/\\r$//' pack.env\nelse\n    rm -f pack.env.tmp\nfi\n\ncurl -fsSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10/main/launch.sh -o launch.sh\nsed -i 's/\\r$//' launch.sh\nsed -i 's|/data|/home/container|g' launch.sh\nsed -i 's|/pack.env|/home/container/pack.env|g' launch.sh\nchmod +x launch.sh\n\ncat << 'EOF' > pelican-start.sh\n#!/bin/bash\ncd /home/container\nexport PATH=\"/home/container/.bin:$PATH\"\nexport EULA=\"true\"\n\n# Ensure persistent custom_mods and custom_config directories exist\nmkdir -p /home/container/custom_mods /home/container/custom_config\n\nif [ \"${AUTO_UPDATE}\" == \"1\" ] || [ \"${AUTO_UPDATE}\" == \"true\" ]; then\n    echo \"[W3LFARe-Egg] AUTO_UPDATE is enabled! Checking W3LFARe/docker-allthemods10 for latest ATM10 release...\"\n    if curl -fsSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10/main/pack.env -o pack.env.tmp && [ -s pack.env.tmp ]; then\n        mv pack.env.tmp pack.env\n        sed -i 's/\\r$//' pack.env\n    else\n        rm -f pack.env.tmp\n    fi\n\n    if curl -fsSL https://raw.githubusercontent.com/W3LFARe/docker-allthemods10/main/launch.sh -o launch.sh.tmp && [ -s launch.sh.tmp ]; then\n        mv launch.sh.tmp launch.sh\n        sed -i 's/\\r$//' launch.sh\n        sed -i 's|/data|/home/container|g' launch.sh\n        sed -i 's|/pack.env|/home/container/pack.env|g' launch.sh\n        chmod +x launch.sh\n    else\n        rm -f launch.sh.tmp\n        echo \"[W3LFARe-Egg] Warning: Could not reach GitHub, using existing launch.sh.\"\n    fi\nelse\n    echo \"[W3LFARe-Egg] AUTO_UPDATE is disabled. Booting installed ATM10 version...\"\nfi\n\nif [ -n \"${SERVER_PORT}\" ]; then\n    echo \"[W3LFARe-Egg] Enforcing Pelican Panel Port: ${SERVER_PORT}\"\n    sed -i \"s/25565/${SERVER_PORT}/g\" launch.sh\n\n    if [ -f server.properties ]; then\n        sed -i \"s/^server-port=.*/server-port=${SERVER_PORT}/\" server.properties\n        sed -i \"s/^query\\.port=.*/query.port=${SERVER_PORT}/\" server.properties\n    fi\nfi\n\n# Fallback hook if upstream launch.sh does not yet contain custom_mods / custom_config / SERVER_PORT\nif ! grep -q \"custom_mods\" launch.sh; then\n    sed -i \"s|./startserver.sh|if compgen -G \\\"/home/container/custom_mods/*.jar\\\" > /dev/null; then echo \\\"[W3LFARe-Egg] Copying persistent mods from /custom_mods to /mods...\\\"; mkdir -p /home/container/mods; cp -vf /home/container/custom_mods/*.jar /home/container/mods/; fi; if [ -n \\\"\\\\$(ls -A /home/container/custom_config 2>/dev/null)\\\" ]; then echo \\\"[W3LFARe-Egg] Copying persistent configs from /custom_config to /config...\\\"; mkdir -p /home/container/config; cp -rvf /home/container/custom_config/* /home/container/config/; fi; if [ -n \\\"\\\\${SERVER_PORT}\\\" ] \\\\&\\\\& [ -f server.properties ]; then sed -i \\\"s/^server-port=.*/server-port=\\\\${SERVER_PORT}/; s/^query\\\\\\\\.port=.*/query.port=\\\\${SERVER_PORT}/\\\" server.properties; fi; ./startserver.sh|g\" launch.sh\nfi\n\nexec bash ./launch.sh\nEOF\n\nsed -i 's/\\r$//' pelican-start.sh\nchmod +x pelican-start.sh\necho \"eula=true\" > eula.txt\necho \"Installation complete! Start the server to download and launch All the Mods 10.\"\n",
+            "script": "#!/bin/bash\nset -euo pipefail\nexport DEBIAN_FRONTEND=noninteractive\napt-get update -qq\napt-get install -y -qq curl ca-certificates busybox-static\n\nmkdir -p /mnt/server/.bin /mnt/server/custom_mods /mnt/server/custom_config\ncd /mnt/server\n\n# jq: the Debian binary needs shared libraries the Java yolk may not have, so ship\n# the official static build for this CPU architecture.\ncase \"$(uname -m)\" in\n    x86_64) JQ_ARCH=\"amd64\" ;;\n    aarch64|arm64) JQ_ARCH=\"arm64\" ;;\n    *) echo \"Unsupported CPU architecture: $(uname -m)\"; exit 1 ;;\nesac\necho \"Installing static jq (${JQ_ARCH})...\"\ncurl -fsSL --retry 3 \"https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-${JQ_ARCH}\" -o .bin/jq\nchmod +x .bin/jq\n.bin/jq --version\n\n# unzip: fallback for images without it (static busybox applet). pelican-start.sh\n# puts .bin at the END of PATH, so a real unzip in the image is always preferred.\ncp -f \"$(command -v busybox)\" .bin/busybox\nln -sf busybox .bin/unzip\n\ncat << 'EOF' > pelican-start.sh\n#!/bin/bash\n# Generated by W3LFARe/pelican-eggs. Recreated on every (re)install - do not edit.\ncd \"$(dirname \"$(readlink -f \"$0\")\")\" || exit 1\nREPO=\"W3LFARe/docker-allthemods10\"\n# .bin only fills gaps (static jq, busybox unzip); tools in the image win.\nexport PATH=\"$PATH:$PWD/.bin\"\n\nlog() { echo \"[W3LFARe-Egg] $*\"; }\n\n# fetch URL DEST - never leaves a partial/empty/error-page file behind.\nfetch() {\n    if curl -fsSL --retry 3 --retry-delay 2 \"$1\" -o \"$2.tmp\" && [ -s \"$2.tmp\" ]; then\n        mv \"$2.tmp\" \"$2\"\n        return 0\n    fi\n    rm -f \"$2.tmp\"\n    return 1\n}\n\n# Which upstream version to run: UPSTREAM_REF if set (e.g. \"main\"), otherwise the\n# newest published GitHub Release tag. Release tags are only created after the\n# upstream smoke test passed, so a broken commit on main never reaches servers.\nresolve_ref() {\n    if [ -n \"${UPSTREAM_REF:-}\" ]; then\n        echo \"${UPSTREAM_REF}\"\n        return 0\n    fi\n    curl -fsSL --retry 2 \"https://api.github.com/repos/${REPO}/releases/latest\" 2>/dev/null \\\n        | sed -n 's/.*\"tag_name\"[[:space:]]*:[[:space:]]*\"\\([^\"]*\\)\".*/\\1/p' | head -n 1\n}\n\n# update_upstream REF - download pack.env + launch.sh together, or change nothing.\nupdate_upstream() {\n    local base=\"https://raw.githubusercontent.com/${REPO}/$1\"\n    if ! fetch \"${base}/pack.env\" pack.env.new || ! fetch \"${base}/launch.sh\" launch.sh.new; then\n        rm -f pack.env.new launch.sh.new\n        return 1\n    fi\n    mv pack.env.new pack.env\n    mv launch.sh.new launch.sh\n    sed -i 's/\\r$//' pack.env launch.sh\n    sed -i 's|/data|/home/container|g; s|/pack.env|/home/container/pack.env|g' launch.sh\n    # Older upstream releases hard-code port 25565; newer ones honour SERVER_PORT.\n    if [ -n \"${SERVER_PORT:-}\" ] && ! grep -q 'SERVER_PORT' launch.sh; then\n        sed -i \"s/25565/${SERVER_PORT}/g\" launch.sh\n    fi\n    chmod +x launch.sh\n    echo \"$1\" > .upstream-ref\n}\n\n# Installer mode: must succeed, otherwise the install fails loudly.\nif [ \"${1:-}\" = \"--fetch-only\" ]; then\n    ref=\"$(resolve_ref)\"\n    if [ -z \"$ref\" ]; then\n        log \"Warning: could not resolve the latest release of ${REPO}; using 'main'.\"\n        ref=\"main\"\n    fi\n    log \"Fetching pack.env and launch.sh from ${REPO}@${ref}...\"\n    if ! update_upstream \"$ref\"; then\n        log \"ERROR: could not download pack.env/launch.sh from ${REPO}@${ref}\"\n        exit 1\n    fi\n    exit 0\nfi\n\n# Minecraft EULA: only ever accepted by the server owner (Pelican's EULA prompt\n# writes eula=true into eula.txt). Never accepted on anyone's behalf.\nif ! grep -qi '^eula=true' eula.txt 2>/dev/null; then\n    [ -f eula.txt ] || echo \"eula=false\" > eula.txt\n    echo \"You need to agree to the EULA in order to run the server. Go to eula.txt for more info.\"\n    exit 0\nfi\nexport EULA=\"true\"\n\nmkdir -p custom_mods custom_config\n\ncase \"${AUTO_UPDATE:-1}\" in\n    1|[Tt][Rr][Uu][Ee])\n        log \"AUTO_UPDATE is enabled! Checking ${REPO} for the latest ATM10 release...\"\n        ref=\"$(resolve_ref)\"\n        if [ -z \"$ref\" ]; then\n            log \"Warning: could not resolve the latest release; keeping the installed launch.sh.\"\n        elif update_upstream \"$ref\"; then\n            log \"Using ${REPO}@${ref}\"\n        else\n            log \"Warning: could not download from GitHub; keeping the installed launch.sh.\"\n        fi\n        ;;\n    *)\n        log \"AUTO_UPDATE is disabled. Booting the installed ATM10 version ($(cat .upstream-ref 2>/dev/null || echo unknown))...\"\n        ;;\nesac\n\nif [ ! -s launch.sh ] || [ ! -s pack.env ]; then\n    log \"ERROR: launch.sh/pack.env missing. Reinstall the server from the panel (Settings -> Reinstall).\"\n    exit 1\nfi\n\n# JVM heap: when JVM_OPTS is empty, size it from the memory allocated in the panel\n# (leave >=1 GB or 15% for metaspace, threads and off-heap) so the container is\n# never OOM-killed by a heap larger than its limit.\nif [ -z \"${JVM_OPTS:-}\" ] && [ \"${SERVER_MEMORY:-0}\" -gt 0 ] 2>/dev/null; then\n    reserve=$(( SERVER_MEMORY * 15 / 100 ))\n    [ \"$reserve\" -lt 1024 ] && reserve=1024\n    xmx=$(( SERVER_MEMORY - reserve ))\n    [ \"$xmx\" -lt 1024 ] && xmx=1024\n    xms=$(( xmx / 2 ))\n    export JVM_OPTS=\"-Xms${xms}M -Xmx${xmx}M\"\n    log \"JVM_OPTS not set; sized from the ${SERVER_MEMORY} MB allocation: ${JVM_OPTS}\"\nfi\n\nfor tool in jq unzip; do\n    command -v \"$tool\" > /dev/null || log \"Warning: '$tool' not found; whitelist/ops or pack updates may fail.\"\ndone\n\nexec bash ./launch.sh\nEOF\nsed -i 's/\\r$//' pelican-start.sh\nchmod +x pelican-start.sh\n\n# Download pack.env + launch.sh (fails the install if GitHub can't be reached).\nbash pelican-start.sh --fetch-only\n\necho \"Installation complete! Start the server, accept the Minecraft EULA when prompted, and All the Mods 10 will download and launch.\"\n",
             "container": "ghcr.io/pelican-eggs/installers:debian",
             "entrypoint": "bash"
         }
@@ -35,22 +36,22 @@
     "variables": [
         {
             "name": "Auto Update on Reboot",
-            "description": "When enabled (1/true), the server fetches the latest launch.sh and pack.env from W3LFARe/docker-allthemods10 on every restart and upgrades ATM10 automatically if a new version was detected by the 6-hour GitHub Action.",
+            "description": "1/true: on every start, switch to the newest tested ATM10 release of W3LFARe/docker-allthemods10 (updates the modpack in place if a new version is out). 0/false: stay on the installed version.",
             "env_variable": "AUTO_UPDATE",
             "default_value": "1",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "required|boolean",
+            "rules": "required|string|in:0,1,true,false",
             "field_type": "text"
         },
         {
             "name": "JVM Arguments",
-            "description": "JAVA Options. Performance Tip: Allocate at least 8-10 GB of RAM for 1-2 players, 10-12 GB for 2-5 players, or 14-16 GB for 5+ players.",
+            "description": "Java memory flags. Leave EMPTY to size the heap automatically from the memory allocated to this server (recommended). The Unraid template default is '-Xms8192m -Xmx12288m'; keep -Xmx at least 1-2 GB below your allocation or the server will be OOM-killed.",
             "env_variable": "JVM_OPTS",
-            "default_value": "-Xms8192m -Xmx12288m",
+            "default_value": "",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "required|string",
+            "rules": "nullable|string|max:200",
             "field_type": "text"
         },
         {
@@ -60,7 +61,7 @@
             "default_value": "All the Mods 10 Server Powered by W3LFARe",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "nullable|string",
+            "rules": "nullable|string|max:200",
             "field_type": "text"
         },
         {
@@ -80,7 +81,7 @@
             "default_value": "5",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "required|numeric",
+            "rules": "required|numeric|min:1",
             "field_type": "text"
         },
         {
@@ -95,9 +96,9 @@
         },
         {
             "name": "Enable Whitelist",
-            "description": "Enable (true)/Disable (false) Whitelist on the Server.",
+            "description": "Enable (true) / disable (false) the whitelist. Same default as the Unraid template: with it enabled, add players to Whitelist Users or nobody can join.",
             "env_variable": "ENABLE_WHITELIST",
-            "default_value": "false",
+            "default_value": "true",
             "user_viewable": true,
             "user_editable": true,
             "rules": "required|string|in:true,false",
@@ -105,22 +106,32 @@
         },
         {
             "name": "Whitelist Users",
-            "description": "Add Users comma-separated to the Whitelist (e.g. TestUserName1, TestUserName2).",
+            "description": "Comma-separated usernames to add to the whitelist (e.g. TestUserName1, TestUserName2).",
             "env_variable": "WHITELIST_USERS",
             "default_value": "",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "nullable|string",
+            "rules": "nullable|string|max:500",
             "field_type": "text"
         },
         {
             "name": "OP Users",
-            "description": "Add Users comma-separated to grant Operator status (e.g. TestUserName1, TestUserName2).",
+            "description": "Comma-separated usernames to grant Operator status (e.g. TestUserName1, TestUserName2).",
             "env_variable": "OP_USERS",
             "default_value": "",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "nullable|string",
+            "rules": "nullable|string|max:500",
+            "field_type": "text"
+        },
+        {
+            "name": "Upstream Version (advanced)",
+            "description": "Leave EMPTY to use the newest tested GitHub Release. Set a tag (e.g. v8.3) to pin a specific version, or 'main' to follow the development branch (untested).",
+            "env_variable": "UPSTREAM_REF",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "nullable|string|max:100|regex:/^[A-Za-z0-9._\\/-]*$/",
             "field_type": "text"
         }
     ]

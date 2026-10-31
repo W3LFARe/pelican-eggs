@@ -5,20 +5,20 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  schedule:
+    # Weekly: catches upstream repos/URLs going away even when this repo is quiet.
+    - cron: '17 6 * * 1'
 
 jobs:
-  validate-json:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Validate Egg JSON Syntax & Schema Keys
-        run: |
-          sudo apt-get update && sudo apt-get install -y jq
-          for file in $(find . -name "egg-*.json"); do
-            echo "Validating $file..."
-            jq -e '.meta.version == "PTDL_v2"' "$file" > /dev/null
-            jq -e '.name != null and .startup != null and .scripts.installation.script != null' "$file" > /dev/null
-            echo "✅ $file is valid!"
-          done
+      - name: Validate eggs (schema, CRLF, bash -n, generator is up to date)
+        run: python3 scripts/validate_eggs.py
+
+      - name: Verify download URLs resolve (icons, update_url, upstream launch.sh/pack.env)
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/validate_eggs.py --check-urls
